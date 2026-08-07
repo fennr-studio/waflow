@@ -14,6 +14,9 @@ const schema = z.object({
   STORAGE: z.enum(["memory", "supabase"]).default("memory"),
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  // Table that completed leads are inserted into (unified CRM). Defaults to
+  // the same `leads` table the Fennr website uses.
+  CRM_LEADS_TABLE: z.string().default("leads"),
   CALENDLY_URL: z.string().url().default("https://calendly.com/fennrstudio/15min"),
   PORTFOLIO_URL: z.string().url().default("https://www.fennrstudio.com"),
 });

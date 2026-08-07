@@ -145,6 +145,27 @@ if (!bot.verify(rawBody, signatureHeader)) return res.status(401).end();
 await bot.handleWebhook(JSON.parse(rawBody));
 ```
 
+## Unified CRM (leads land in your website's admin)
+
+Completed leads are delivered via `Bot.onLead(...)` handlers — the Store only
+holds conversation state. The bundled server ships a **Fennr CRM handler**: when
+`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` are set, each completed lead is
+inserted into the same **`leads`** table the website uses, tagged
+`source = "whatsapp"`, so it appears in `/admin` next to your web leads.
+
+The handler translates the flow's compact ids into the exact labels the website
+form uses (`logo → "Logo & Identity"`, `50k-1L → "₹50k – ₹1L"`, …) and stores the
+WhatsApp number as the phone. WhatsApp leads have **no email**, so run
+`supabase-migration-3.sql` in the website project first (makes `email` nullable).
+
+Wiring your own CRM is one function:
+
+```ts
+bot.onLead(async (lead) => {
+  await myDb.insert("leads", { name: lead.name, phone: "+" + lead.from, ...lead.data });
+});
+```
+
 ## Human handoff
 
 waflow qualifies and captures — it is **not** a full team inbox. When a lead completes (or types something off-menu you want to catch), use `onLead` / your logs to get notified, then reply from Meta's **WhatsApp Manager** inbox or a lightweight inbox of your own. A shared team inbox is the main thing the paid BSPs add on top.

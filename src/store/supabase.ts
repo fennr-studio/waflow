@@ -1,15 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Conversation, Lead } from "../flow/types.js";
+import type { Conversation } from "../flow/types.js";
 import type { Store } from "./types.js";
 
 /**
- * Supabase-backed store. Requires two tables (see sql/schema.sql):
+ * Supabase-backed conversation store. Requires one table (see sql/schema.sql):
  *
  *   wa_conversations(from text primary key, step text, data jsonb, updated_at timestamptz)
- *   wa_leads(id uuid default gen_random_uuid() primary key, "from" text, name text,
- *            data jsonb, completed_at timestamptz)
  *
- * Uses the service-role key, so keep this server-side only.
+ * Durable and shared across instances, so this is the right choice for
+ * serverless deployments. Uses the service-role key — server-side only.
+ * (Completed leads go to your CRM via a Bot.onLead handler, not here.)
  */
 export class SupabaseStore implements Store {
   constructor(private readonly db: SupabaseClient) {}
@@ -46,15 +46,5 @@ export class SupabaseStore implements Store {
   async clearConversation(from: string): Promise<void> {
     const { error } = await this.db.from("wa_conversations").delete().eq("from", from);
     if (error) throw new Error(`Supabase clearConversation: ${error.message}`);
-  }
-
-  async saveLead(lead: Lead): Promise<void> {
-    const { error } = await this.db.from("wa_leads").insert({
-      from: lead.from,
-      name: lead.name ?? null,
-      data: lead.data,
-      completed_at: new Date(lead.completedAt).toISOString(),
-    });
-    if (error) throw new Error(`Supabase saveLead: ${error.message}`);
   }
 }

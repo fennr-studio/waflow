@@ -78,8 +78,9 @@ export class Bot {
         data: conv.data,
         completedAt: Date.now(),
       };
-      await this.store.saveLead(lead).catch((e) => console.error("[waflow] saveLead failed:", e));
-      for (const h of this.leadHandlers) await Promise.resolve(h(lead)).catch((e) => console.error("[waflow] onLead failed:", e));
+      for (const h of this.leadHandlers) {
+        await Promise.resolve(h(lead)).catch((e) => console.error("[waflow] onLead failed:", e));
+      }
     }
   }
 }

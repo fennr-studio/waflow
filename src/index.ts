@@ -35,3 +35,6 @@ export { SupabaseStore } from "./store/supabase.js";
 export { createStore } from "./store/factory.js";
 
 export { fennrFlow } from "./flows/fennr.js";
+
+// Integrations
+export { fennrCrmHandler, toLeadRow } from "./integrations/fennrCrm.js";

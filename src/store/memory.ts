@@ -1,15 +1,15 @@
-import type { Conversation, Lead } from "../flow/types.js";
+import type { Conversation } from "../flow/types.js";
 import type { Store } from "./types.js";
 
 /**
- * Zero-dependency in-memory store. Great for local dev and tests. State is
- * lost on restart and not shared across instances — use a durable Store
- * (e.g. Supabase) in production. Includes lazy TTL eviction so stale
- * conversations don't leak memory.
+ * Zero-dependency in-memory conversation store. Great for local dev and for
+ * long-running single-instance servers (Railway/Fly/Render). State is lost on
+ * restart and NOT shared across instances — on serverless (Vercel/Workers) use
+ * a durable Store (e.g. SupabaseStore) instead. Includes lazy TTL eviction so
+ * abandoned conversations don't leak memory.
  */
 export class MemoryStore implements Store {
   private readonly conversations = new Map<string, Conversation>();
-  private readonly leads: Lead[] = [];
 
   constructor(private readonly ttlMs = 1000 * 60 * 60 * 24) {}
 
@@ -28,14 +28,5 @@ export class MemoryStore implements Store {
 
   async clearConversation(from: string): Promise<void> {
     this.conversations.delete(from);
-  }
-
-  async saveLead(lead: Lead): Promise<void> {
-    this.leads.push(lead);
-  }
-
-  /** Test/inspection helper. */
-  allLeads(): readonly Lead[] {
-    return this.leads;
   }
 }

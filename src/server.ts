@@ -16,10 +16,22 @@ export async function createServer() {
   const flow = fennrFlow({ calendlyUrl: cfg.CALENDLY_URL, portfolioUrl: cfg.PORTFOLIO_URL });
   const bot = new Bot(cfg, store, flow);
 
-  // Example: react to completed leads (email, Slack, CRM webhook…)
+  // Always log completed leads.
   bot.onLead((lead) => {
     console.log(`[waflow] 🎉 new lead from ${lead.from}:`, lead.data);
   });
+
+  // Unified CRM: if Supabase is configured, push leads into the same `leads`
+  // table the website uses, so they show up in /admin alongside web leads.
+  if (cfg.SUPABASE_URL && cfg.SUPABASE_SERVICE_ROLE_KEY) {
+    const { createClient } = await import("@supabase/supabase-js");
+    const { fennrCrmHandler } = await import("./integrations/fennrCrm.js");
+    const db = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    });
+    bot.onLead(fennrCrmHandler(db, cfg.CRM_LEADS_TABLE));
+    console.log(`[waflow] CRM enabled → leads insert into "${cfg.CRM_LEADS_TABLE}"`);
+  }
 
   const app = new Hono();
 
