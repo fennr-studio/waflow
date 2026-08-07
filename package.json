@@ -21,9 +21,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint . --ext .ts",
-    "format": "prettier --write ."
+    "test:watch": "vitest"
   },
   "keywords": [
     "whatsapp",
