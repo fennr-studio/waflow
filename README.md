@@ -130,6 +130,14 @@ Step types:
 
 `next` can be a string or `(data) => stepId` for branching.
 
+## Form mode (WhatsApp Flows)
+
+Prefer one native **multi-select form** over the step-by-step chat (closest to a
+website brief form)? Publish a WhatsApp Flow and set `WHATSAPP_FLOW_ID` — the bot
+then sends a single form (multi-select services + budget + timeline + name) and
+turns the submission into a lead. See **[FLOWS.md](./FLOWS.md)** and the ready-made
+[`flows/brief-flow.json`](./flows/brief-flow.json).
+
 ## Embedding in your own server
 
 Skip the bundled server and use the `Bot` directly:

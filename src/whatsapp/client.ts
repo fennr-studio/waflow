@@ -1,6 +1,23 @@
 import type { Config } from "../config.js";
 import type { OutgoingMessage } from "./types.js";
 
+/** Parameters for sending a WhatsApp Flow message. */
+export interface SendFlowOptions {
+  flowId: string;
+  /** Correlates the submission back to this user/session. */
+  flowToken: string;
+  /** Button label that opens the form (max 20 chars). */
+  cta: string;
+  /** Message text shown above the button. */
+  body: string;
+  /** The Flow's first (terminal) screen id, e.g. "BRIEF". */
+  screen: string;
+  header?: string;
+  footer?: string;
+  /** Optional initial data passed to the screen. */
+  data?: Record<string, unknown>;
+}
+
 /**
  * Thin, typed client over the WhatsApp Cloud API `/messages` endpoint.
  * Converts our friendly `OutgoingMessage` shapes into Meta's wire format.
@@ -22,6 +39,33 @@ export class WhatsAppClient {
   /** Send several messages in order. */
   async sendAll(to: string, msgs: OutgoingMessage[]): Promise<void> {
     for (const m of msgs) await this.send(to, m);
+  }
+
+  /** Send a WhatsApp Flow (native in-chat form) to a recipient. */
+  async sendFlow(to: string, opts: SendFlowOptions): Promise<void> {
+    await this.post("/messages", {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to,
+      type: "interactive",
+      interactive: {
+        type: "flow",
+        body: { text: opts.body },
+        ...(opts.header ? { header: { type: "text", text: opts.header } } : {}),
+        ...(opts.footer ? { footer: { text: opts.footer } } : {}),
+        action: {
+          name: "flow",
+          parameters: {
+            flow_message_version: "3",
+            flow_id: opts.flowId,
+            flow_token: opts.flowToken,
+            flow_cta: opts.cta,
+            flow_action: "navigate",
+            flow_action_payload: { screen: opts.screen, ...(opts.data ? { data: opts.data } : {}) },
+          },
+        },
+      },
+    });
   }
 
   /** Mark an inbound message as read (the blue ticks). Best-effort. */

@@ -25,17 +25,26 @@ export function fennrCrmHandler(db: SupabaseClient, table = "leads"): LeadHandle
 /** Exported for testing: pure mapping from a waflow Lead to a leads row. */
 export function toLeadRow(lead: Lead): Record<string, unknown> {
   const d = lead.data;
-  const service = SERVICE_LABELS[d.service ?? ""];
+  const interests = serviceLabels(d);
   return {
     name: (lead.name ?? d.name ?? "WhatsApp lead").trim(),
     email: null, // WhatsApp leads have no email; phone is the contact
     phone: toE164(lead.from),
-    interests: service ? [service] : null,
+    interests: interests.length ? interests : null,
     budget: BUDGET_LABELS[d.budget ?? ""] ?? null,
     timeline: TIMELINE_LABELS[d.timeline ?? ""] ?? null,
     message: "Lead captured via WhatsApp bot",
     source: "whatsapp",
   };
+}
+
+/**
+ * Resolve service labels from either the conversational flow (single `service`)
+ * or the WhatsApp Flow form (`services` = comma-separated ids, multi-select).
+ */
+function serviceLabels(d: Record<string, string>): string[] {
+  const ids = d.services ? d.services.split(",") : d.service ? [d.service] : [];
+  return ids.map((id) => SERVICE_LABELS[id.trim()]).filter((x): x is string => Boolean(x));
 }
 
 /** WhatsApp `from` is E.164 without '+'; store it with a leading '+'. */

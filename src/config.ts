@@ -10,6 +10,9 @@ const schema = z.object({
   WHATSAPP_APP_SECRET: z.string().min(1, "WHATSAPP_APP_SECRET is required"),
   WHATSAPP_VERIFY_TOKEN: z.string().min(1, "WHATSAPP_VERIFY_TOKEN is required"),
   WHATSAPP_API_VERSION: z.string().default("v22.0"),
+  // Optional: a published WhatsApp Flow id. When set, the bot uses "form mode"
+  // (one native multi-select form) instead of the step-by-step conversation.
+  WHATSAPP_FLOW_ID: z.string().optional(),
   PORT: z.coerce.number().default(3000),
   STORAGE: z.enum(["memory", "supabase"]).default("memory"),
   SUPABASE_URL: z.string().url().optional(),

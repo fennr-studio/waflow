@@ -4,7 +4,8 @@
  * Public API surface for embedding in your own server (Vercel/Express/etc.).
  */
 export { Bot } from "./bot.js";
-export type { LeadHandler } from "./bot.js";
+export type { FormFlow, LeadHandler } from "./bot.js";
+export { createBot } from "./createBot.js";
 export { loadConfig } from "./config.js";
 export type { Config } from "./config.js";
 
@@ -24,6 +25,7 @@ export type {
 } from "./flow/types.js";
 
 export { WhatsAppClient } from "./whatsapp/client.js";
+export type { SendFlowOptions } from "./whatsapp/client.js";
 export type { InboundMessage, OutgoingMessage } from "./whatsapp/types.js";
 
 export { verifySignature, verifySubscription } from "./webhook/verify.js";
@@ -35,6 +37,7 @@ export { SupabaseStore } from "./store/supabase.js";
 export { createStore } from "./store/factory.js";
 
 export { fennrFlow } from "./flows/fennr.js";
+export { fennrForm, mapBriefResponse } from "./flows/fennrForm.js";
 
 // Integrations
 export { fennrCrmHandler, toLeadRow } from "./integrations/fennrCrm.js";

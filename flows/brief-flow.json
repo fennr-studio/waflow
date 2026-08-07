@@ -1,0 +1,85 @@
+{
+  "version": "7.0",
+  "screens": [
+    {
+      "id": "BRIEF",
+      "title": "Start your brief",
+      "terminal": true,
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextSubheading",
+            "text": "Tell us what you need and we'll send a plan. ~30 seconds."
+          },
+          {
+            "type": "Form",
+            "name": "form",
+            "children": [
+              {
+                "type": "CheckboxGroup",
+                "name": "services",
+                "label": "What do you need? (pick any)",
+                "required": true,
+                "data-source": [
+                  { "id": "web", "title": "Web Development" },
+                  { "id": "logo", "title": "Logo & Identity" },
+                  { "id": "seo", "title": "SEO & Visibility" },
+                  { "id": "photo", "title": "Photography" },
+                  { "id": "design", "title": "Graphic Design" },
+                  { "id": "brand", "title": "Brand Strategy" },
+                  { "id": "ai", "title": "AI & Strategy" }
+                ]
+              },
+              {
+                "type": "RadioButtonsGroup",
+                "name": "budget",
+                "label": "Budget",
+                "required": true,
+                "data-source": [
+                  { "id": "under50k", "title": "Under ₹50k" },
+                  { "id": "50k-1L", "title": "₹50k – ₹1L" },
+                  { "id": "1L-3L", "title": "₹1L – ₹3L" },
+                  { "id": "3L+", "title": "₹3L+" },
+                  { "id": "unsure", "title": "Not sure yet" }
+                ]
+              },
+              {
+                "type": "RadioButtonsGroup",
+                "name": "timeline",
+                "label": "Timeline",
+                "required": true,
+                "data-source": [
+                  { "id": "asap", "title": "ASAP" },
+                  { "id": "1-3m", "title": "1–3 months" },
+                  { "id": "3-6m", "title": "3–6 months" },
+                  { "id": "exploring", "title": "Just exploring" }
+                ]
+              },
+              {
+                "type": "TextInput",
+                "name": "name",
+                "label": "Your name & business",
+                "input-type": "text",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Send brief",
+                "on-click-action": {
+                  "name": "complete",
+                  "payload": {
+                    "services": "${form.services}",
+                    "budget": "${form.budget}",
+                    "timeline": "${form.timeline}",
+                    "name": "${form.name}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

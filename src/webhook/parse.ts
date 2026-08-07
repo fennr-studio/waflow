@@ -35,6 +35,15 @@ export function parseInbound(payload: unknown): InboundMessage[] {
             out.push({ ...base, replyId: i.list_reply.id, replyTitle: i.list_reply.title });
           } else if (i.type === "button_reply" && i.button_reply) {
             out.push({ ...base, replyId: i.button_reply.id, replyTitle: i.button_reply.title });
+          } else if (i.type === "nfm_reply" && i.nfm_reply) {
+            // WhatsApp Flow submission. response_json is a stringified object.
+            let response: Record<string, unknown> | undefined;
+            try {
+              response = JSON.parse(i.nfm_reply.response_json) as Record<string, unknown>;
+            } catch {
+              response = undefined;
+            }
+            if (response) out.push({ ...base, flowResponse: response });
           }
         } else if (m.type === "button" && m.button) {
           // Template quick-reply buttons arrive as `button`, payload is the id.
@@ -70,5 +79,6 @@ interface RawMessage {
     type: string;
     list_reply?: { id: string; title: string; description?: string };
     button_reply?: { id: string; title: string };
+    nfm_reply?: { name?: string; response_json: string };
   };
 }

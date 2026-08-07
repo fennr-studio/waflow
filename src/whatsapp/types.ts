@@ -68,4 +68,9 @@ export interface InboundMessage {
   text?: string;
   replyId?: string;
   replyTitle?: string;
+  /**
+   * Parsed `nfm_reply.response_json` when the user submits a WhatsApp Flow
+   * form. Keys are the Flow's field names; multi-selects are string arrays.
+   */
+  flowResponse?: Record<string, unknown>;
 }
