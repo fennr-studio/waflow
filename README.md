@@ -1,5 +1,7 @@
 # waflow
 
+[![CI](https://github.com/terabyte-trifler/waflow/actions/workflows/ci.yml/badge.svg)](https://github.com/terabyte-trifler/waflow/actions/workflows/ci.yml)
+
 A small, **config-driven WhatsApp Cloud API flow engine**. Define a conversation as data — waflow verifies the webhook, drives the state machine, sends interactive **list / button** messages, captures the answers, and hands you a completed **lead**.
 
 It's the open, self-hosted core that tools like AiSensy / Interakt / Wati wrap in a paid dashboard. If all you need is *"reply to inbound leads with a menu, qualify them, and book a call,"* this is ~600 lines you fully own.
