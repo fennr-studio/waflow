@@ -103,7 +103,12 @@ export class Bot {
       await this.store.saveConversation(conv);
     }
 
-    await this.client.sendAll(msg.from, outcome.messages);
+    // A failed reply must never lose a captured lead — log and continue.
+    try {
+      await this.client.sendAll(msg.from, outcome.messages);
+    } catch (e) {
+      console.error(`[waflow] send failed for ${msg.from}:`, e);
+    }
 
     if (outcome.completed) {
       const lead: Lead = {
@@ -122,7 +127,11 @@ export class Bot {
     if (msg.flowResponse) {
       const data = form.map(msg.flowResponse);
       await this.store.clearConversation(msg.from);
-      if (form.done) await this.client.send(msg.from, { kind: "text", body: form.done(data), previewUrl: true });
+      try {
+        if (form.done) await this.client.send(msg.from, { kind: "text", body: form.done(data), previewUrl: true });
+      } catch (e) {
+        console.error(`[waflow] send failed for ${msg.from}:`, e);
+      }
       await this.emitLead({ from: msg.from, name: msg.name ?? data.name, data, completedAt: Date.now() });
       return;
     }

@@ -10,3 +10,5 @@ coverage/
 .next/
 next-env.d.ts
 out/
+.vercel
+.env*
