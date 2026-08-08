@@ -1,6 +1,6 @@
 # waflow
 
-[![CI](https://github.com/terabyte-trifler/waflow/actions/workflows/ci.yml/badge.svg)](https://github.com/terabyte-trifler/waflow/actions/workflows/ci.yml)
+[![CI](https://github.com/fennr-studio/waflow/actions/workflows/ci.yml/badge.svg)](https://github.com/fennr-studio/waflow/actions/workflows/ci.yml)
 
 A small, **config-driven WhatsApp Cloud API flow engine**. Define a conversation as data — waflow verifies the webhook, drives the state machine, sends interactive **list / button** messages, captures the answers, and hands you a completed **lead**.
 
