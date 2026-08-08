@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>waflow — WhatsApp Cloud API flow engine</title>
+    <meta
+      name="description"
+      content="A config-driven WhatsApp Cloud API flow engine: verify webhooks, drive a state machine, send interactive messages & Flows, capture leads."
+    />
+    <style>
+      :root {
+        --ink: #101013;
+        --ink-2: #17171c;
+        --line: #2a2a32;
+        --mist: #f1f2f0;
+        --muted: #9a9ca4;
+        --accent: #ffd21e;
+        --ok: #27c93f;
+        --bad: #ff5f56;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background: var(--ink);
+        color: var(--mist);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      .wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 24px; }
+      header { padding: 56px 0 8px; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+      .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -0.02em; }
+      .mark {
+        width: 34px; height: 34px; border-radius: 9px; background: var(--accent);
+        color: var(--ink); display: grid; place-items: center; font-weight: 900; font-size: 20px;
+      }
+      .status {
+        display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted);
+        border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; white-space: nowrap;
+      }
+      .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 0 rgba(39,201,63,0.5); }
+      .dot.ok { background: var(--ok); animation: pulse 2s infinite; }
+      .dot.bad { background: var(--bad); }
+      @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(39,201,63,0.5); }
+        70% { box-shadow: 0 0 0 8px rgba(39,201,63,0); }
+        100% { box-shadow: 0 0 0 0 rgba(39,201,63,0); }
+      }
+      main { flex: 1; padding: 40px 0; }
+      .eyebrow { color: var(--accent); font-size: 12px; letter-spacing: 0.18em; font-weight: 700; text-transform: uppercase; }
+      h1 { font-size: clamp(34px, 6vw, 52px); line-height: 1.05; letter-spacing: -0.03em; margin: 14px 0 18px; font-weight: 800; }
+      h1 .it { font-style: italic; color: var(--accent); }
+      .lede { color: var(--muted); font-size: 18px; max-width: 620px; }
+      .btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+        border-radius: 10px; padding: 11px 18px; font-weight: 600; font-size: 15px; transition: 0.15s;
+      }
+      .btn.primary { background: var(--accent); color: var(--ink); }
+      .btn.primary:hover { filter: brightness(1.05); }
+      .btn.ghost { border: 1px solid var(--line); color: var(--mist); }
+      .btn.ghost:hover { border-color: var(--accent); }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 48px; }
+      @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+      .card { border: 1px solid var(--line); background: var(--ink-2); border-radius: 14px; padding: 18px 20px; }
+      .card h3 { font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+      .card p { color: var(--muted); font-size: 14px; }
+      .card .k { color: var(--accent); }
+      .flow { margin-top: 46px; border: 1px solid var(--line); border-radius: 14px; padding: 20px; background: var(--ink-2); }
+      .flow .step { display: flex; gap: 12px; align-items: baseline; font-size: 14px; padding: 5px 0; color: var(--muted); }
+      .flow .n { color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 700; min-width: 22px; }
+      .flow .step b { color: var(--mist); font-weight: 600; }
+      code { background: #000; border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; font-size: 13px; color: var(--accent); }
+      footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: 13px; }
+      footer a { color: var(--mist); text-decoration: none; }
+      footer a:hover { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="topbar">
+          <div class="brand"><span class="mark">w</span><span>waflow</span></div>
+          <span class="status" id="status">
+            <span class="dot" id="dot"></span><span id="statusText">checking…</span>
+          </span>
+        </div>
+      </header>
+
+      <main>
+        <p class="eyebrow">WhatsApp Cloud API</p>
+        <h1>A config-driven <span class="it">flow engine</span> for WhatsApp.</h1>
+        <p class="lede">
+          Verify webhooks, drive a typed state machine, send interactive lists / buttons / Flows,
+          and capture qualified leads — straight into your CRM. The open, self-hosted core of a
+          WhatsApp lead bot.
+        </p>
+
+        <div class="btns">
+          <a class="btn primary" href="https://github.com/fennr-studio/waflow" target="_blank" rel="noopener">View on GitHub →</a>
+          <a class="btn ghost" href="https://github.com/fennr-studio/waflow/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+          <a class="btn ghost" href="/api/health">Health</a>
+        </div>
+
+        <div class="grid">
+          <div class="card"><h3><span class="k">◆</span> Two modes</h3><p>Step-by-step chat, or one native multi-select <b>WhatsApp Flow</b> form.</p></div>
+          <div class="card"><h3><span class="k">◆</span> Secure</h3><p>Verifies <code>X-Hub-Signature-256</code> over the raw body, timing-safe.</p></div>
+          <div class="card"><h3><span class="k">◆</span> Config-driven</h3><p>A conversation is typed data — no engine changes to add a business.</p></div>
+          <div class="card"><h3><span class="k">◆</span> Unified CRM</h3><p>Completed leads land in your existing <code>leads</code> table.</p></div>
+        </div>
+
+        <div class="flow">
+          <div class="step"><span class="n">01</span><span>User messages your number → <b>service menu</b> is sent.</span></div>
+          <div class="step"><span class="n">02</span><span>They pick <b>service · budget · timeline</b> and share their name.</span></div>
+          <div class="step"><span class="n">03</span><span>The lead lands in your CRM and they get a <b>booking link</b>.</span></div>
+        </div>
+      </main>
+
+      <footer>
+        Built by <a href="https://www.fennrstudio.com" target="_blank" rel="noopener">Fennr Studio</a>
+        · MIT licensed · <a href="https://github.com/fennr-studio/waflow" target="_blank" rel="noopener">fennr-studio/waflow</a>
+      </footer>
+    </div>
+
+    <script>
+      // Live status via the health endpoint.
+      fetch("/api/health")
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((d) => setStatus(d && d.ok, "Online"))
+        .catch(() => setStatus(false, "Offline"));
+      function setStatus(ok, label) {
+        var dot = document.getElementById("dot");
+        var txt = document.getElementById("statusText");
+        dot.className = "dot " + (ok ? "ok" : "bad");
+        txt.textContent = ok ? label : "Offline";
+      }
+    </script>
+  </body>
+</html>
