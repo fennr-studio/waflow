@@ -1,13 +1,18 @@
-import { verifySubscription } from "../src/webhook/verify.js";
-import { getBot, verifyToken } from "./_app.js";
+import { loadConfig } from "@/src/config";
+import { createBot } from "@/src/createBot";
+import { verifySubscription } from "@/src/webhook/verify";
 
-/**
- * Vercel serverless webhook. Uses the Web-handler signature so we get the
- * RAW request body via `request.text()` (required for signature verification;
- * the legacy (req,res) handler would auto-parse and break it).
- *
- * Routed at /api/webhook. Point your Meta webhook Callback URL there.
- */
+// Always run on the Node runtime (node:crypto), never cache, allow a few
+// seconds to send replies.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 15;
+
+// Memoize the bot across warm invocations.
+let botPromise: ReturnType<typeof createBot> | undefined;
+function getBot() {
+  return (botPromise ??= createBot(loadConfig()));
+}
 
 // GET → Meta's subscription handshake.
 export function GET(request: Request): Response {
@@ -18,12 +23,12 @@ export function GET(request: Request): Response {
       token: url.searchParams.get("hub.verify_token") ?? undefined,
       challenge: url.searchParams.get("hub.challenge") ?? undefined,
     },
-    verifyToken(),
+    loadConfig().WHATSAPP_VERIFY_TOKEN,
   );
   return challenge ? new Response(challenge, { status: 200 }) : new Response("Forbidden", { status: 403 });
 }
 
-// POST → inbound messages. Verify signature over the raw body, then process.
+// POST → inbound messages. Verify the signature over the RAW body, then process.
 export async function POST(request: Request): Promise<Response> {
   const raw = await request.text();
   const bot = await getBot();
@@ -39,8 +44,6 @@ export async function POST(request: Request): Promise<Response> {
     return new Response("Bad JSON", { status: 400 });
   }
 
-  // On serverless we must finish before returning (no reliable background work).
-  // Sending 1–3 messages is well within Meta's webhook timeout.
   await bot.handleWebhook(payload);
   return new Response("EVENT_RECEIVED", { status: 200 });
 }

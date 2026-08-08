@@ -9,7 +9,7 @@ It's the open, self-hosted core that tools like AiSensy / Interakt / Wati wrap i
 - 🧩 **Config-driven** — a flow is a typed object (`Flow`). No engine changes to add a business.
 - 🔐 **Secure by default** — verifies `X-Hub-Signature-256` over the raw body (timing-safe).
 - 🗄️ **Pluggable storage** — in-memory out of the box; Supabase adapter included; bring your own via the `Store` interface.
-- ⚡ **Portable** — plain TypeScript + [Hono](https://hono.dev). Runs on Node, Vercel, Cloudflare Workers, Bun.
+- ⚡ **Next.js app** — a landing page + the webhook as Route Handlers (`app/api/webhook`), Vercel-native. The engine in `src/` stays framework-agnostic and reusable.
 - ✅ **Tested** — the engine and signature verification have unit tests.
 
 ---
@@ -183,24 +183,23 @@ waflow qualifies and captures — it is **not** a full team inbox. When a lead c
 ## Project layout
 
 ```
-src/
+app/
+  page.tsx             landing page (live /api/health status)
+  api/health/route.ts  health check
+  api/webhook/route.ts Meta handshake (GET) + inbound messages (POST)
+src/                   the framework-agnostic engine:
   config.ts            env validation (zod)
+  createBot.ts         wire flow + form mode + unified CRM from config
   bot.ts               orchestrator: verify → parse → engine → persist → send
-  server.ts            reference Hono server (thin)
-  flow/
-    types.ts           Flow / Step / Conversation types
-    engine.ts          the pure state machine
-  flows/fennr.ts       example flow (service → budget → timeline → name → book)
-  whatsapp/
-    types.ts           outgoing + normalized inbound message types
-    client.ts          Cloud API client (list / buttons / text / read receipts)
-  webhook/
-    verify.ts          X-Hub-Signature-256 + GET handshake
-    parse.ts           raw webhook → normalized inbound messages
-  store/
-    types.ts memory.ts supabase.ts factory.ts
-sql/schema.sql         Supabase tables (STORAGE=supabase)
-test/                  engine + signature tests
+  flow/                Flow/Step types + the pure state machine
+  flows/               fennr.ts (chat) · fennrForm.ts (WhatsApp Flow)
+  whatsapp/            Cloud API client (text/list/buttons/flow) + types
+  webhook/             verify.ts (signature) · parse.ts (normalize inbound)
+  store/               memory.ts · supabase.ts · factory.ts
+  integrations/        fennrCrm.ts (leads → website's table)
+flows/brief-flow.json  publishable WhatsApp Flow (multi-select form)
+sql/schema.sql         Supabase table (STORAGE=supabase)
+test/                  engine, signature, CRM, flow-form tests
 ```
 
 ## License

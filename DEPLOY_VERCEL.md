@@ -28,8 +28,9 @@ Grab from **Project Settings → API**:
 
 ## 2. Import the repo into Vercel
 
-1. [vercel.com/new](https://vercel.com/new) → **Import Git Repository** → pick `terabyte-trifler/waflow`.
-2. Framework preset: **Other** (Vercel auto-detects the `api/` functions — no build config needed).
+1. [vercel.com/new](https://vercel.com/new) → **Import Git Repository** → pick `fennr-studio/waflow`
+   (grant Vercel access to the **fennr-studio** org if it isn't listed).
+2. Vercel **auto-detects Next.js** — leave **Framework Preset = Next.js** and **Root Directory = `./`**. No build config needed.
 3. Don't deploy yet — add env vars first (next step).
 
 ## 3. Set Environment Variables
